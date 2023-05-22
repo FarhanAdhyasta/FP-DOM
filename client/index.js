@@ -156,8 +156,8 @@ function generateRows(books) {
           <td class="px-6 py-4 border-b">${book.year}</td>
           <td class="px-6 py-4 border-b">${book.quantity}</td>
           <td class="px-6 py-4 border-b text-center">
-            <button class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="handleClickEditButton(${book.id})">Edit</button>
-            <button class="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded delete-button" onclick="handleClickDeleteButton(${book.id})">Hapus</button>
+            <button class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded edit-button" onclick="handleClickEditButton(${book.id})">Edit</button>
+            <button class="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded delete-button">Hapus</button>
           </td>
         </tr>`;
       rows += row;
@@ -204,11 +204,11 @@ async function loadPage() {
     const rows = generateRows(bookList);
     tableBody.innerHTML = rows;
 
-    document.addEventListener('click', function(event) {
+    tableBody.addEventListener('click', function (event) {
       if (event.target.classList.contains('delete-button')) {
+        event.preventDefault();
         const bookId = parseInt(event.target.parentElement.parentElement.dataset.bookId);
         deleteBook(bookId);
-        loadPage();
       }
     });
     
@@ -290,6 +290,15 @@ async function deleteBook(bookId) {
       method: 'DELETE',
     });
     console.log('Buku berhasil dihapus');
+
+    // Remove the deleted book from the local array
+    books = books.filter((book) => book.id !== bookId);
+
+    // Remove the deleted book row from the HTML table
+    const bookRow = document.querySelector(`tr[data-book-id="${bookId}"]`);
+    if (bookRow) {
+      bookRow.remove();
+    }
   } catch (error) {
     console.log(error);
     console.log('Terjadi kesalahan saat menghapus buku');
